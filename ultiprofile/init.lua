@@ -3,16 +3,11 @@ local m = {}
 local serdes = require("ultiprofile.serdes")
 local utils = require("ultiprofile.utils")
 
-local data = {
-	settings={
-		animations=true,
-		hints=true,
-		msaa=true,
-	}
-}
+local data = {}
 local PROFILE_PATH = "profile.txt"
 
-function m.load()
+function m.load(default_config)
+	data = default_config or {}
 	if not love.filesystem.getInfo(PROFILE_PATH) then
 		return
 	end

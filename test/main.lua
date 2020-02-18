@@ -30,7 +30,8 @@ local function check_equals(a, b)
 
 	if not equal then
 		check_fails = check_fails + 1
-		print(debug.traceback("Check failed!", 2))
+		local infos = debug.getinfo(2)
+		print("Check failed! in function defined at line "..infos.linedefined.." in line "..infos.currentline)
 	end
 end
 
@@ -59,20 +60,36 @@ function serialization()
 	check_equals(profile.get("test", "table"), demo_table)
 end
 
-TESTS = {load_save, serialization}
+function migration()
+	profile.load({metadata={version=0}})
+	profile.set("abc", "def", "ghi")
+	profile.save()
+
+	profile.load({metadata={version=1}})
+	check_equals(profile.get("abc2", "def", "ghi"), "ghi")
+	check_equals(profile.get("abc", "def", "ghi"), nil)
+end
+
+TESTS = {"load_save", "serialization", "migration"}
 
 function love.run()
 	return function()
-		for i, func in ipairs(TESTS) do
+		local total_failed = 0
+		for i, name in ipairs(TESTS) do
 			check_count = 0
 			check_fails = 0
-			print("==> Test ".. i .. " out of ".. #TESTS)
+			print()
+			print("==> Running test '"..name.."' ("..i.."/"..#TESTS..")")
 			love.filesystem.remove("profile.txt")
-			func()
+			_G[name]()
 			print("==> "..check_fails.." checks failed out of "..check_count)
+			total_failed = total_failed + check_fails
 		end
-
-		print("Tests ran successfully.")
-		return 0
+		if total_failed == 0 then
+			print("Tests ran successfully.")
+			return 0
+		end
+		print("Some tests failed.")
+		return 1
 	end
 end
