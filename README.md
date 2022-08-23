@@ -1,3 +1,7 @@
+# Unmaintained project!
+
+I might take another stab at this, but at the moment I no longer plan on developing this.
+
 # Ultiprofile
 ## What is Ultiprofile?
 Ultiprofile is a pure-lua way of creating save profiles for LÖVE. It supports
